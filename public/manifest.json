@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Convrt",
+  "description": "Simple and Easy to Use Currency Converter",
+  "version": "1.0.0",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Open"
+  },
+  "permissions": [
+    "scripting"
+  ]
+}
