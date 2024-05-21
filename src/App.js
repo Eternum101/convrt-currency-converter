@@ -1,20 +1,29 @@
 import React, { useState, useEffect } from "react";
 import "./main.css";
 import { TbTransferVertical } from "react-icons/tb";
+import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 
 function App() {
-  const [fromCurrency, setFromCurrency] = useState("SGD");
-  const [toCurrency, setToCurrency] = useState("USD");
-  const [exchangeRate, setExchangeRate] = useState(null);
+  const [currency, setCurrency] = useState('AUD');
+  const [currencyName, setCurrencyName] = useState('');
+  const [currencies, setCurrencies] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
   
   useEffect(() => {
-    fetch(`https://api.exchangerate-api.com/v4/latest/${fromCurrency}`)
+    fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies.json')
       .then(response => response.json())
       .then(data => {
-        setExchangeRate(data.rates[toCurrency]);
-      });
-  }, [fromCurrency, toCurrency]);
-  
+        setCurrencies(Object.keys(data));
+        setCurrencyName(data[currency.toLowerCase()] || '');
+      })
+      .catch(error => console.error(error));
+  }, [currency]);
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency.toUpperCase());
+    setIsOpen(false);
+  };
+
   return (
     <main className="layout">
       <section className="header-section">
@@ -33,10 +42,22 @@ function App() {
           </div>
         <div className="currency-container">
           <div className="currency-box">
-            <img src={`/flags/${fromCurrency.slice(0, 2).toLowerCase()}.png`} alt={`${fromCurrency} flag`} />
+            <img src={`/flags/${currency.slice(0, 2).toLowerCase()}.png`} alt={`${currency} flag`} />
             <div className="currency">
-              <h2>{fromCurrency}</h2>
-              <p>Singapore Dollar</p>
+              <div className="currency-icon-container">
+                <h2>{currency}</h2>
+                <MdOutlineKeyboardArrowDown onClick={() => setIsOpen(!isOpen)}/>
+              </div>
+              <p>{currencyName}</p>
+              {isOpen && (
+                <div className="currency-dropdown">
+                  {currencies.map((currency) => (
+                    <div key={currency} onClick={() => handleCurrencyChange(currency)}>
+                      {currency.toUpperCase()}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         <div className="currency-text">
@@ -54,9 +75,12 @@ function App() {
         </div>
       <div className="currency-container">
         <div className="currency-box">
-        <img src={`/flags/${toCurrency.slice(0, 2).toLowerCase()}.png`} alt={`${toCurrency} flag`} />
-            <div className="currency">
-              <h2>{toCurrency}</h2>
+       {/*<img src={`/flags/${toCurrency.slice(0, 2).toLowerCase()}.png`} alt={`${toCurrency} flag`} />*/}
+          <div className="currency">
+            <div className="currency-icon-container">
+                <h2>USD</h2>
+                <MdOutlineKeyboardArrowDown />
+              </div>
               <p>United States Dollar</p>
             </div>
           </div>
