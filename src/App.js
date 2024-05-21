@@ -1,8 +1,20 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./main.css";
 import { TbTransferVertical } from "react-icons/tb";
 
 function App() {
+  const [fromCurrency, setFromCurrency] = useState("SGD");
+  const [toCurrency, setToCurrency] = useState("USD");
+  const [exchangeRate, setExchangeRate] = useState(null);
+  
+  useEffect(() => {
+    fetch(`https://api.exchangerate-api.com/v4/latest/${fromCurrency}`)
+      .then(response => response.json())
+      .then(data => {
+        setExchangeRate(data.rates[toCurrency]);
+      });
+  }, [fromCurrency, toCurrency]);
+  
   return (
     <main className="layout">
       <section className="header-section">
@@ -21,14 +33,14 @@ function App() {
           </div>
         <div className="currency-container">
           <div className="currency-box">
-            <div>Circle</div>
+            <img src={`/flags/${fromCurrency.slice(0, 2).toLowerCase()}.png`} alt={`${fromCurrency} flag`} />
             <div className="currency">
-              <h2>SGD</h2>
+              <h2>{fromCurrency}</h2>
               <p>Singapore Dollar</p>
             </div>
           </div>
         <div className="currency-text">
-          <h2>1000.00</h2>
+          <input type="number"></input>
         </div>
         </div>
         <div className="icon-container">
@@ -42,14 +54,14 @@ function App() {
         </div>
       <div className="currency-container">
         <div className="currency-box">
-            <div>Circle</div>
+        <img src={`/flags/${toCurrency.slice(0, 2).toLowerCase()}.png`} alt={`${toCurrency} flag`} />
             <div className="currency">
-              <h2>USD</h2>
+              <h2>{toCurrency}</h2>
               <p>United States Dollar</p>
             </div>
           </div>
         <div className="currency-text">
-          <h2>736.70</h2>
+          <input type="number"></input>
         </div>
         </div>
       </div>

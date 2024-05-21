@@ -71,6 +71,12 @@
     min-width: 180px
 }
 
+.currency-box img {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
 .currency {
     display: flex;
     flex-direction: column;
@@ -83,12 +89,15 @@
     font-size: 0.9rem;
 }
 
-.currency-text {
+.currency-text input {
     background-color: #eeeeee;
     border-radius: 7px;
     width: 110px;
     padding: 10px;
-    text-align: center;
+    font-size: 1rem;
+    font-weight: 700;
+    outline: none;
+    border: none;
 }
 
 .icon-container {
