@@ -4,24 +4,50 @@ import { TbTransferVertical } from "react-icons/tb";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 
 function App() {
-  const [currency, setCurrency] = useState('AUD');
-  const [currencyName, setCurrencyName] = useState('');
+  const [fromCurrency, setFromCurrency] = useState('AUD');
+  const [toCurrency, setToCurrency] = useState('USD');
+  const [fromCurrencyName, setFromCurrencyName] = useState('');
+  const [toCurrencyName, setToCurrencyName] = useState('');
   const [currencies, setCurrencies] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isFromOpen, setIsFromOpen] = useState(false);
+  const [isToOpen, setIsToOpen] = useState(false);
   
   useEffect(() => {
     fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies.json')
       .then(response => response.json())
       .then(data => {
-        setCurrencies(Object.keys(data));
-        setCurrencyName(data[currency.toLowerCase()] || '');
+        let currencyCodes = Object.keys(data);
+
+        currencyCodes.sort((a, b) => {
+          const regex = /^[a-zA-Z]/;
+          if (regex.test(a) && regex.test(b)) {
+            return a.localeCompare(b);
+          } else if (regex.test(a)) {
+            return -1;
+          } else if (regex.test(b)) {
+            return 1;
+          } else {
+            return a.localeCompare(b);
+          }
+        });
+
+        setCurrencies(currencyCodes);
+        setFromCurrencyName(data[fromCurrency.toLowerCase()] || '');
+        setToCurrencyName(data[toCurrency.toLowerCase()] || '');
       })
       .catch(error => console.error(error));
-  }, [currency]);
+  }, [fromCurrency, toCurrency]);
 
-  const handleCurrencyChange = (newCurrency) => {
-    setCurrency(newCurrency.toUpperCase());
-    setIsOpen(false);
+  const handleFromCurrencyChange = (newCurrency) => {
+    setFromCurrency(newCurrency.toUpperCase());
+    setIsFromOpen(false);
+    setIsToOpen(false);
+  };
+
+  const handleToCurrencyChange = (newCurrency) => {
+    setToCurrency(newCurrency.toUpperCase());
+    setIsToOpen(false);
+    setIsFromOpen(false);
   };
 
   return (
@@ -42,17 +68,17 @@ function App() {
           </div>
         <div className="currency-container">
           <div className="currency-box">
-            <img src={`/flags/${currency.slice(0, 2).toLowerCase()}.png`} alt={`${currency} flag`} />
+          <img src={`/flags/${fromCurrency.toLowerCase()}.png`} alt={`${fromCurrency} flag`} onError={(e) => {e.target.onerror = null; e.target.style.display='none'}} onLoad={(e) => {e.target.style.display=''}} />
             <div className="currency">
               <div className="currency-icon-container">
-                <h2>{currency}</h2>
-                <MdOutlineKeyboardArrowDown onClick={() => setIsOpen(!isOpen)}/>
+                <h2>{fromCurrency}</h2>
+                <MdOutlineKeyboardArrowDown onClick={() => {setIsFromOpen(!isFromOpen); setIsToOpen(false);}}/>
               </div>
-              <p>{currencyName}</p>
-              {isOpen && (
+              <p>{fromCurrencyName}</p>
+              {isFromOpen && (
                 <div className="currency-dropdown">
                   {currencies.map((currency) => (
-                    <div key={currency} onClick={() => handleCurrencyChange(currency)}>
+                    <div key={currency} onClick={() => handleFromCurrencyChange(currency)}>
                       {currency.toUpperCase()}
                     </div>
                   ))}
@@ -74,14 +100,23 @@ function App() {
             <p>Converted Amount</p>
         </div>
       <div className="currency-container">
-        <div className="currency-box">
-       {/*<img src={`/flags/${toCurrency.slice(0, 2).toLowerCase()}.png`} alt={`${toCurrency} flag`} />*/}
-          <div className="currency">
-            <div className="currency-icon-container">
-                <h2>USD</h2>
-                <MdOutlineKeyboardArrowDown />
+      <div className="currency-box">
+        <img src={`/flags/${toCurrency.toLowerCase()}.png`} alt={`${toCurrency} flag`} onError={(e) => {e.target.onerror = null; e.target.style.display='none'}} onLoad={(e) => {e.target.style.display=''}} />
+            <div className="currency">
+              <div className="currency-icon-container">
+                <h2>{toCurrency}</h2>
+                <MdOutlineKeyboardArrowDown onClick={() => {setIsToOpen(!isToOpen); setIsFromOpen(false);}}/>
               </div>
-              <p>United States Dollar</p>
+              <p>{toCurrencyName}</p>
+              {isToOpen && (
+                <div className="currency-dropdown">
+                  {currencies.map((currency) => (
+                    <div key={currency} onClick={() => handleToCurrencyChange(currency)}>
+                      {currency.toUpperCase()}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         <div className="currency-text">
