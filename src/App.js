@@ -11,12 +11,20 @@ function App() {
   const [currencies, setCurrencies] = useState([]);
   const [isFromOpen, setIsFromOpen] = useState(false);
   const [isToOpen, setIsToOpen] = useState(false);
-  
+  const [fromCurrencyArrowRotation, setFromCurrencyArrowRotation] = useState(0);
+  const [toCurrencyArrowRotation, setToCurrencyArrowRotation] = useState(0);
+  const [currencyNames, setCurrencyNames] = useState({});
+
   useEffect(() => {
     fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies.json')
       .then(response => response.json())
       .then(data => {
         let currencyCodes = Object.keys(data);
+        const currencyNameMap = {};
+
+        currencyCodes.forEach(currencyCode => {
+          currencyNameMap[currencyCode] = data[currencyCode];
+        });
 
         currencyCodes.sort((a, b) => {
           const regex = /^[a-zA-Z]/;
@@ -32,6 +40,7 @@ function App() {
         });
 
         setCurrencies(currencyCodes);
+        setCurrencyNames(currencyNameMap);
         setFromCurrencyName(data[fromCurrency.toLowerCase()] || '');
         setToCurrencyName(data[toCurrency.toLowerCase()] || '');
       })
@@ -48,6 +57,20 @@ function App() {
     setToCurrency(newCurrency.toUpperCase());
     setIsToOpen(false);
     setIsFromOpen(false);
+  };
+
+  const toggleFromCurrencyDropdown = () => {
+    setIsFromOpen(!isFromOpen);
+    setFromCurrencyArrowRotation(fromCurrencyArrowRotation === 0 ? 180 : 0);
+    setIsToOpen(false);
+    setToCurrencyArrowRotation(0);
+  };
+
+  const toggleToCurrencyDropdown = () => {
+    setIsToOpen(!isToOpen);
+    setToCurrencyArrowRotation(toCurrencyArrowRotation === 0 ? 180 : 0);
+    setIsFromOpen(false);
+    setFromCurrencyArrowRotation(0);
   };
 
   return (
@@ -68,18 +91,19 @@ function App() {
           </div>
         <div className="currency-container">
           <div className="currency-box">
-          <img src={`/flags/${fromCurrency.toLowerCase()}.png`} alt={`${fromCurrency} flag`} onError={(e) => {e.target.onerror = null; e.target.style.display='none'}} onLoad={(e) => {e.target.style.display=''}} />
+          <img className="currency-flag" src={`/flags/${fromCurrency.toLowerCase()}.png`} alt={`${fromCurrency} flag`} onError={(e) => {e.target.onerror = null; e.target.style.display='none'}} onLoad={(e) => {e.target.style.display=''}} />
             <div className="currency">
               <div className="currency-icon-container">
                 <h2>{fromCurrency}</h2>
-                <MdOutlineKeyboardArrowDown onClick={() => {setIsFromOpen(!isFromOpen); setIsToOpen(false);}}/>
+                <MdOutlineKeyboardArrowDown onClick={toggleFromCurrencyDropdown} style={{ transform: `rotate(${fromCurrencyArrowRotation}deg)` }} />
               </div>
               <p>{fromCurrencyName}</p>
               {isFromOpen && (
                 <div className="currency-dropdown">
                   {currencies.map((currency) => (
-                    <div key={currency} onClick={() => handleFromCurrencyChange(currency)}>
-                      {currency.toUpperCase()}
+                    <div className="dropdown-list" key={currency} onClick={() => handleFromCurrencyChange(currency)}>
+                      <img className="dropdown-flag" src={`/flags/${currency.toLowerCase()}.png`} alt={`${currency} flag`} onError={(e) => {e.target.onerror = null; e.target.style.display='none'}} onLoad={(e) => {e.target.style.display=''}} />
+                      {currencyNames[currency] ? `${currency.toUpperCase()} - ${currencyNames[currency]}` : currencyNames[currency] === '' ? currency.toUpperCase() : null}
                     </div>
                   ))}
                 </div>
@@ -101,18 +125,19 @@ function App() {
         </div>
       <div className="currency-container">
       <div className="currency-box">
-        <img src={`/flags/${toCurrency.toLowerCase()}.png`} alt={`${toCurrency} flag`} onError={(e) => {e.target.onerror = null; e.target.style.display='none'}} onLoad={(e) => {e.target.style.display=''}} />
+        <img className="currency-flag" src={`/flags/${toCurrency.toLowerCase()}.png`} alt={`${toCurrency} flag`} onError={(e) => {e.target.onerror = null; e.target.style.display='none'}} onLoad={(e) => {e.target.style.display=''}} />
             <div className="currency">
               <div className="currency-icon-container">
                 <h2>{toCurrency}</h2>
-                <MdOutlineKeyboardArrowDown onClick={() => {setIsToOpen(!isToOpen); setIsFromOpen(false);}}/>
+                <MdOutlineKeyboardArrowDown onClick={toggleToCurrencyDropdown} style={{ transform: `rotate(${toCurrencyArrowRotation}deg)` }} />
               </div>
               <p>{toCurrencyName}</p>
               {isToOpen && (
                 <div className="currency-dropdown">
                   {currencies.map((currency) => (
-                    <div key={currency} onClick={() => handleToCurrencyChange(currency)}>
-                      {currency.toUpperCase()}
+                    <div className="dropdown-list" key={currency} onClick={() => handleToCurrencyChange(currency)}>
+                      <img className="dropdown-flag" src={`/flags/${currency.toLowerCase()}.png`} alt={`${currency} flag`} onError={(e) => {e.target.onerror = null; e.target.style.display='none'}} onLoad={(e) => {e.target.style.display=''}} />
+                      {currencyNames[currency] ? `${currency.toUpperCase()} - ${currencyNames[currency]}` : currencyNames[currency] === '' ? currency.toUpperCase() : null}
                     </div>
                   ))}
                 </div>
