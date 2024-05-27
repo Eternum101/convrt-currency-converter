@@ -6,7 +6,10 @@
     justify-content: center;
     gap: 25px;
     padding: 30px 0 130px 30px;
-    background: linear-gradient(180deg, rgb(54, 87, 253) 0%, rgb(76, 106, 252) 63.5%);
+    background: url('../public/header-background.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: bottom;
     color: #ffff;
     border-bottom-left-radius: 50% 20%;
     border-bottom-right-radius: 50% 20%;
