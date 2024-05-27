@@ -14,6 +14,8 @@ function App() {
   const [fromCurrencyArrowRotation, setFromCurrencyArrowRotation] = useState(0);
   const [toCurrencyArrowRotation, setToCurrencyArrowRotation] = useState(0);
   const [currencyNames, setCurrencyNames] = useState({});
+  const [currenciesWithFlags, setCurrenciesWithFlags] = useState([]);
+  const [searchCurrencies, setSearchCurrencies] = useState([]);
 
   useEffect(() => {
     fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies.json')
@@ -24,25 +26,37 @@ function App() {
 
         currencyCodes.forEach(currencyCode => {
           currencyNameMap[currencyCode] = data[currencyCode];
+          const img = new Image();
+          img.src = `/flags/${currencyCode.toLowerCase()}.png`;
+          img.onload = () => setCurrenciesWithFlags(oldCurrencies => [...oldCurrencies, currencyCode]);
         });
 
-        currencyCodes.sort((a, b) => {
-          const regex = /^[a-zA-Z]/;
-          if (regex.test(a) && regex.test(b)) {
-            return a.localeCompare(b);
-          } else if (regex.test(a)) {
-            return -1;
-          } else if (regex.test(b)) {
-            return 1;
-          } else {
-            return a.localeCompare(b);
-          }
+        Promise.all(currencyCodes.map(currencyCode => {
+          return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = `/flags/${currencyCode.toLowerCase()}.png`;
+            img.onload = () => resolve(currencyCode);
+            img.onerror = () => resolve(null);
+          });
+        })).then(currenciesWithFlags => {
+          currenciesWithFlags = currenciesWithFlags.filter(currency => currency !== null);
+          setCurrenciesWithFlags(currenciesWithFlags);
+          currencyCodes.sort((a, b) => {
+            const aHasFlag = currenciesWithFlags.includes(a);
+            const bHasFlag = currenciesWithFlags.includes(b);
+            if (aHasFlag && !bHasFlag) {
+              return -1;
+            } else if (!aHasFlag && bHasFlag) {
+              return 1;
+            } else {
+              return a.localeCompare(b);
+            }
+          });
+          setCurrencies(currencyCodes);
+          setCurrencyNames(currencyNameMap);
+          setFromCurrencyName(data[fromCurrency.toLowerCase()] || '');
+          setToCurrencyName(data[toCurrency.toLowerCase()] || '');
         });
-
-        setCurrencies(currencyCodes);
-        setCurrencyNames(currencyNameMap);
-        setFromCurrencyName(data[fromCurrency.toLowerCase()] || '');
-        setToCurrencyName(data[toCurrency.toLowerCase()] || '');
       })
       .catch(error => console.error(error));
   }, [fromCurrency, toCurrency]);
@@ -73,6 +87,30 @@ function App() {
     setFromCurrencyArrowRotation(0);
   };
 
+  const handleFromCurrencySearch = (event) => {
+    const searchValue = event.target.value.toUpperCase();
+    setFromCurrency(searchValue);
+    
+    const filteredCurrencies = currencies.filter(currency => 
+      currency.startsWith(searchValue) || 
+      (currencyNames[currency] && currencyNames[currency].toUpperCase().startsWith(searchValue))
+    );
+    
+    setSearchCurrencies(filteredCurrencies);
+  };
+  
+  const handleToCurrencySearch = (event) => {
+    const searchValue = event.target.value.toUpperCase();
+    setToCurrency(searchValue);
+    
+    const filteredCurrencies = currencies.filter(currency => 
+      currency.startsWith(searchValue) || 
+      (currencyNames[currency] && currencyNames[currency].toUpperCase().startsWith(searchValue))
+    );
+    
+    setSearchCurrencies(filteredCurrencies);
+  };
+
   return (
     <main className="layout">
       <section className="header-section">
@@ -94,7 +132,11 @@ function App() {
           <img className="currency-flag" src={`/flags/${fromCurrency.toLowerCase()}.png`} alt={`${fromCurrency} flag`} onError={(e) => {e.target.onerror = null; e.target.style.display='none'}} onLoad={(e) => {e.target.style.display=''}} />
             <div className="currency">
               <div className="currency-icon-container">
-                <h2>{fromCurrency}</h2>
+                {isFromOpen ? (
+                  <input type="text" onChange={handleFromCurrencySearch} value={fromCurrency}/>
+                ) : (
+                  <h2>{fromCurrency}</h2>
+                )}
                 <MdOutlineKeyboardArrowDown onClick={toggleFromCurrencyDropdown} style={{ transform: `rotate(${fromCurrencyArrowRotation}deg)` }} />
               </div>
               <p>{fromCurrencyName}</p>
@@ -128,7 +170,11 @@ function App() {
         <img className="currency-flag" src={`/flags/${toCurrency.toLowerCase()}.png`} alt={`${toCurrency} flag`} onError={(e) => {e.target.onerror = null; e.target.style.display='none'}} onLoad={(e) => {e.target.style.display=''}} />
             <div className="currency">
               <div className="currency-icon-container">
-                <h2>{toCurrency}</h2>
+                {isToOpen ? (
+                  <input type="text" onChange={handleToCurrencySearch} value={toCurrency} />
+                ) : (
+                  <h2>{toCurrency}</h2>
+                )}
                 <MdOutlineKeyboardArrowDown onClick={toggleToCurrencyDropdown} style={{ transform: `rotate(${toCurrencyArrowRotation}deg)` }} />
               </div>
               <p>{toCurrencyName}</p>
