@@ -26,7 +26,7 @@ function App() {
   
         currencyCodes.forEach(currencyCode => {
           currencyNameMap[currencyCode] = data[currencyCode];
-          if (currencyCode.length === 3) { // Check if the currency code has three letters
+          if (currencyCode.length === 3) {
             const img = new Image();
             img.src = `/flags/${currencyCode.toLowerCase()}.png`;
             img.onload = () => setCurrenciesWithFlags(oldCurrencies => [...oldCurrencies, currencyCode]);
@@ -35,13 +35,13 @@ function App() {
   
         Promise.all(currencyCodes.map(currencyCode => {
           return new Promise((resolve, reject) => {
-            if (currencyCode.length === 3) { // Check if the currency code has three letters
+            if (currencyCode.length === 3) {
               const img = new Image();
               img.src = `/flags/${currencyCode.toLowerCase()}.png`;
               img.onload = () => resolve(currencyCode);
               img.onerror = () => resolve(null);
             } else {
-              resolve(null); // Skip loading the flag if the currency code does not have three letters
+              resolve(null);
             }
           });
         })).then(currenciesWithFlags => {
