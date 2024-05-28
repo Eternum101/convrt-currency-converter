@@ -23,20 +23,26 @@ function App() {
       .then(data => {
         let currencyCodes = Object.keys(data);
         const currencyNameMap = {};
-
+  
         currencyCodes.forEach(currencyCode => {
           currencyNameMap[currencyCode] = data[currencyCode];
-          const img = new Image();
-          img.src = `/flags/${currencyCode.toLowerCase()}.png`;
-          img.onload = () => setCurrenciesWithFlags(oldCurrencies => [...oldCurrencies, currencyCode]);
-        });
-
-        Promise.all(currencyCodes.map(currencyCode => {
-          return new Promise((resolve, reject) => {
+          if (currencyCode.length === 3) { // Check if the currency code has three letters
             const img = new Image();
             img.src = `/flags/${currencyCode.toLowerCase()}.png`;
-            img.onload = () => resolve(currencyCode);
-            img.onerror = () => resolve(null);
+            img.onload = () => setCurrenciesWithFlags(oldCurrencies => [...oldCurrencies, currencyCode]);
+          }
+        });
+  
+        Promise.all(currencyCodes.map(currencyCode => {
+          return new Promise((resolve, reject) => {
+            if (currencyCode.length === 3) { // Check if the currency code has three letters
+              const img = new Image();
+              img.src = `/flags/${currencyCode.toLowerCase()}.png`;
+              img.onload = () => resolve(currencyCode);
+              img.onerror = () => resolve(null);
+            } else {
+              resolve(null); // Skip loading the flag if the currency code does not have three letters
+            }
           });
         })).then(currenciesWithFlags => {
           currenciesWithFlags = currenciesWithFlags.filter(currency => currency !== null);
@@ -60,6 +66,37 @@ function App() {
       })
       .catch(error => console.error(error));
   }, [fromCurrency, toCurrency]);
+
+  const [amount, setAmount] = useState(0);
+  const [convertedAmount, setConvertedAmount] = useState(0);
+  const [exchangeRate, setExchangeRate] = useState(1);
+  const roundedConvertedAmount = Number(convertedAmount).toFixed(2);
+
+  const handleAmountChange = (event) => {
+    const inputAmount = event.target.value;
+    setAmount(inputAmount);
+    setConvertedAmount(inputAmount * exchangeRate);
+  };
+
+  useEffect(() => {
+    if (fromCurrency && toCurrency) {
+      const url = `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${fromCurrency.toLowerCase()}.json`;
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const rates = data[fromCurrency.toLowerCase()];
+          if (rates && rates[toCurrency.toLowerCase()]) {
+            const rate = rates[toCurrency.toLowerCase()];
+            setExchangeRate(rate);
+            const conversionResult = amount * rate;
+            setConvertedAmount(Number(conversionResult).toFixed(2));
+          } else {
+            console.error('Exchange rate for the specified currency pair not found.');
+          }
+        })
+        .catch(error => console.error(error));
+    }
+  }, [fromCurrency, toCurrency, amount]);
 
   const handleFromCurrencyChange = (newCurrency) => {
     setFromCurrency(newCurrency.toUpperCase());
@@ -153,7 +190,7 @@ function App() {
             </div>
           </div>
         <div className="currency-text">
-          <input type="number"></input>
+          <input type="number" value={amount} onChange={handleAmountChange}></input>
         </div>
         </div>
         <div className="icon-container">
@@ -191,7 +228,7 @@ function App() {
             </div>
           </div>
         <div className="currency-text">
-          <input type="number"></input>
+          <input type="number" value={roundedConvertedAmount} readOnly></input>
         </div>
         </div>
       </div>
