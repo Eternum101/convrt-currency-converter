@@ -16,7 +16,6 @@ function App() {
   const [currencyNames, setCurrencyNames] = useState({});
   const [currenciesWithFlags, setCurrenciesWithFlags] = useState([]);
   const [searchCurrencies, setSearchCurrencies] = useState([]);
-  const [originalCurrencies, setOriginalCurrencies] = useState([]);
 
   useEffect(() => {
     fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies.json')
@@ -59,7 +58,7 @@ function App() {
               return a.localeCompare(b);
             }
           });
-          setOriginalCurrencies(currencyCodes);
+          setCurrencies(currencyCodes);
           setCurrencyNames(currencyNameMap);
           setFromCurrencyName(data[fromCurrency.toLowerCase()] || '');
           setToCurrencyName(data[toCurrency.toLowerCase()] || '');
@@ -138,7 +137,7 @@ function App() {
     setFromCurrency(searchValue);
   
     if (searchValue) {
-      const filteredCurrencies = originalCurrencies.filter(currency => 
+      const filteredCurrencies = currencies.filter(currency => 
         currency.startsWith(searchValue) || 
         (currencyNames[currency] && currencyNames[currency].toUpperCase().startsWith(searchValue))
       );
@@ -156,7 +155,7 @@ function App() {
     setToCurrency(searchValue);
   
     if (searchValue) {
-      const filteredCurrencies = originalCurrencies.filter(currency => 
+      const filteredCurrencies = currencies.filter(currency => 
         currency.startsWith(searchValue) || 
         (currencyNames[currency] && currencyNames[currency].toUpperCase().startsWith(searchValue))
       );
