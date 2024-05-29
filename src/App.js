@@ -16,6 +16,7 @@ function App() {
   const [currencyNames, setCurrencyNames] = useState({});
   const [currenciesWithFlags, setCurrenciesWithFlags] = useState([]);
   const [searchCurrencies, setSearchCurrencies] = useState([]);
+  const [originalCurrencies, setOriginalCurrencies] = useState([]);
 
   useEffect(() => {
     fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies.json')
@@ -58,7 +59,7 @@ function App() {
               return a.localeCompare(b);
             }
           });
-          setCurrencies(currencyCodes);
+          setOriginalCurrencies(currencyCodes);
           setCurrencyNames(currencyNameMap);
           setFromCurrencyName(data[fromCurrency.toLowerCase()] || '');
           setToCurrencyName(data[toCurrency.toLowerCase()] || '');
@@ -115,6 +116,10 @@ function App() {
     setFromCurrencyArrowRotation(fromCurrencyArrowRotation === 0 ? 180 : 0);
     setIsToOpen(false);
     setToCurrencyArrowRotation(0);
+
+    if (!isFromOpen) {
+      setSearchCurrencies(currenciesWithFlags);
+    }
   };
 
   const toggleToCurrencyDropdown = () => {
@@ -122,31 +127,47 @@ function App() {
     setToCurrencyArrowRotation(toCurrencyArrowRotation === 0 ? 180 : 0);
     setIsFromOpen(false);
     setFromCurrencyArrowRotation(0);
+
+    if (!isToOpen) {
+      setSearchCurrencies(currenciesWithFlags);
+    }
   };
 
   const handleFromCurrencySearch = (event) => {
     const searchValue = event.target.value.toUpperCase();
     setFromCurrency(searchValue);
-    
-    const filteredCurrencies = currencies.filter(currency => 
-      currency.startsWith(searchValue) || 
-      (currencyNames[currency] && currencyNames[currency].toUpperCase().startsWith(searchValue))
-    );
-    
-    setSearchCurrencies(filteredCurrencies);
+  
+    if (searchValue) {
+      const filteredCurrencies = originalCurrencies.filter(currency => 
+        currency.startsWith(searchValue) || 
+        (currencyNames[currency] && currencyNames[currency].toUpperCase().startsWith(searchValue))
+      );
+  
+      filteredCurrencies.sort((a, b) => (a.startsWith(searchValue) ? -1 : b.startsWith(searchValue) ? 1 : 0));
+  
+      setSearchCurrencies(filteredCurrencies);
+    } else {
+      setSearchCurrencies(currenciesWithFlags);
+    }
   };
   
   const handleToCurrencySearch = (event) => {
     const searchValue = event.target.value.toUpperCase();
     setToCurrency(searchValue);
-    
-    const filteredCurrencies = currencies.filter(currency => 
-      currency.startsWith(searchValue) || 
-      (currencyNames[currency] && currencyNames[currency].toUpperCase().startsWith(searchValue))
-    );
-    
-    setSearchCurrencies(filteredCurrencies);
-  };
+  
+    if (searchValue) {
+      const filteredCurrencies = originalCurrencies.filter(currency => 
+        currency.startsWith(searchValue) || 
+        (currencyNames[currency] && currencyNames[currency].toUpperCase().startsWith(searchValue))
+      );
+  
+      filteredCurrencies.sort((a, b) => (a.startsWith(searchValue) ? -1 : b.startsWith(searchValue) ? 1 : 0));
+  
+      setSearchCurrencies(filteredCurrencies);
+    } else {
+      setSearchCurrencies(currenciesWithFlags);
+    }
+};
 
   return (
     <main className="layout">
@@ -179,7 +200,7 @@ function App() {
               <p>{fromCurrencyName}</p>
               {isFromOpen && (
                 <div className="currency-dropdown">
-                  {currencies.map((currency) => (
+                  {searchCurrencies.map((currency) => (
                     <div className="dropdown-list" key={currency} onClick={() => handleFromCurrencyChange(currency)}>
                       <img className="dropdown-flag" src={`/flags/${currency.toLowerCase()}.png`} alt={`${currency} flag`} onError={(e) => {e.target.onerror = null; e.target.style.display='none'}} onLoad={(e) => {e.target.style.display=''}} />
                       {currencyNames[currency] ? `${currency.toUpperCase()} - ${currencyNames[currency]}` : currencyNames[currency] === '' ? currency.toUpperCase() : null}
@@ -217,7 +238,7 @@ function App() {
               <p>{toCurrencyName}</p>
               {isToOpen && (
                 <div className="currency-dropdown">
-                  {currencies.map((currency) => (
+                  {searchCurrencies.map((currency) => (
                     <div className="dropdown-list" key={currency} onClick={() => handleToCurrencyChange(currency)}>
                       <img className="dropdown-flag" src={`/flags/${currency.toLowerCase()}.png`} alt={`${currency} flag`} onError={(e) => {e.target.onerror = null; e.target.style.display='none'}} onLoad={(e) => {e.target.style.display=''}} />
                       {currencyNames[currency] ? `${currency.toUpperCase()} - ${currencyNames[currency]}` : currencyNames[currency] === '' ? currency.toUpperCase() : null}
