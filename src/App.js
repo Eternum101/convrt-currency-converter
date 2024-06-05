@@ -186,7 +186,7 @@ function App() {
           </div>
         <div className="currency-container">
           <div className="currency-box">
-          <img className="currency-flag" src={`/flags/${fromCurrency.toLowerCase()}.png`} alt={`${fromCurrency} flag`} onError={(e) => {e.target.onerror = null; e.target.style.display='none'}} onLoad={(e) => {e.target.style.display=''}} />
+          <img className="currency-flag" src={`/flags/${fromCurrency.toLowerCase()}.png`} alt={`${fromCurrency} flag`} onError={(e) => {e.target.onerror = null; e.target.src='/flags/placeholder-image.png'}} onLoad={(e) => {e.target.style.display=''}} />
             <div className="currency">
               <div className="currency-icon-container">
                 {isFromOpen ? (
@@ -224,7 +224,7 @@ function App() {
         </div>
       <div className="currency-container">
       <div className="currency-box">
-        <img className="currency-flag" src={`/flags/${toCurrency.toLowerCase()}.png`} alt={`${toCurrency} flag`} onError={(e) => {e.target.onerror = null; e.target.style.display='none'}} onLoad={(e) => {e.target.style.display=''}} />
+        <img className="currency-flag" src={`/flags/${toCurrency.toLowerCase()}.png`} alt={`${toCurrency} flag`} onError={(e) => {e.target.onerror = null; e.target.src='/flags/placeholder-image.png'}} onLoad={(e) => {e.target.style.display=''}} />
             <div className="currency">
               <div className="currency-icon-container">
                 {isToOpen ? (
