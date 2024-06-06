@@ -257,7 +257,7 @@ function App() {
         <div className="exchange-rate-container">
           <p>Today</p>
         <div className="exchange-rate">
-          <p>1 SGD = 0.7367 USD</p>
+          <p>1 {fromCurrency} = {Number(exchangeRate).toFixed(4)} {toCurrency}</p>
         </div>
         </div>
       </section>
