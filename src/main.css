@@ -70,7 +70,6 @@
 
 .currency-box {
     display: flex;
-    align-items: center;
     gap: 10px;
     min-width: 180px
 }
@@ -94,6 +93,8 @@
 .currency p {
     color: #989898;
     font-size: 0.9rem;
+    white-space: normal;
+    height: 30px;
 }
 
 .currency-icon-container {
@@ -218,8 +219,8 @@
     background: linear-gradient(180deg, rgb(76, 106, 252) 0%, rgb(54, 87, 253) 100%);
     border-radius: 7px;
     padding: 10px;
-    width: 170px;
     color: #ffffff;
     font-size: 1rem;
     font-weight: 700;
+    width: fit-content;
 }
