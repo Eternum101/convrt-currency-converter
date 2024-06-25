@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./main.css";
 import { TbTransferVertical } from "react-icons/tb";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
@@ -74,11 +74,11 @@ function App() {
   const [exchangeRate, setExchangeRate] = useState(1);
   const roundedConvertedAmount = Number(convertedAmount).toFixed(2);
 
-  const handleAmountChange = (event) => {
+  const handleAmountChange = useCallback((event) => {
     const inputAmount = event.target.value;
     setAmount(inputAmount);
     setConvertedAmount(inputAmount * exchangeRate);
-  };
+  }, [exchangeRate]);  
 
   useEffect(() => {
     if (fromCurrency && toCurrency) {
@@ -134,41 +134,23 @@ function App() {
     }
   };
 
-const handleFromCurrencySearch = (event) => {
-  const searchFromValue = event.target.value.toUpperCase();
-  setSearchFromValue(searchFromValue);
-
-  if (searchFromValue) {
-    const filteredCurrencies = currenciesWithFlags.filter(currencyCode => 
-      currencyCode.toUpperCase().startsWith(searchFromValue) || 
-      currencyNames[currencyCode].toUpperCase().includes(searchFromValue)
-    );
-
-    filteredCurrencies.sort((a, b) => (a.startsWith(searchFromValue) ? -1 : b.startsWith(searchFromValue) ? 1 : 0));
-
-    setSearchCurrencies(filteredCurrencies);
-  } else {
-    setSearchCurrencies(currenciesWithFlags);
-  }
-};
-
-const handleToCurrencySearch = (event) => {
-  const searchToValue = event.target.value.toUpperCase();
-  setSearchToValue(searchToValue);
-
-  if (searchToValue) {
-    const filteredCurrencies = currenciesWithFlags.filter(currencyCode => 
-      currencyCode.toUpperCase().startsWith(searchToValue) || 
-      currencyNames[currencyCode].toUpperCase().includes(searchToValue)
-    );
-
-    filteredCurrencies.sort((a, b) => (a.startsWith(searchToValue) ? -1 : b.startsWith(searchToValue) ? 1 : 0));
-
-    setSearchCurrencies(filteredCurrencies);
-  } else {
-    setSearchCurrencies(currenciesWithFlags);
-  }
-};
+  const handleCurrencySearch = (event, setSearchValue, setCurrencies) => {
+    const searchValue = event.target.value.toUpperCase();
+    setSearchValue(searchValue);
+  
+    if (searchValue) {
+      const filteredCurrencies = currenciesWithFlags.filter(currencyCode => 
+        currencyCode.toUpperCase().startsWith(searchValue) || 
+        currencyNames[currencyCode].toUpperCase().includes(searchValue)
+      );
+  
+      filteredCurrencies.sort((a, b) => (a.startsWith(searchValue) ? -1 : b.startsWith(searchValue) ? 1 : 0));
+  
+      setCurrencies(filteredCurrencies);
+    } else {
+      setCurrencies(currenciesWithFlags);
+    }
+  };
 
   return (
     <main className="layout">
@@ -192,7 +174,7 @@ const handleToCurrencySearch = (event) => {
             <div className="currency">
               <div className="currency-icon-container">
                 {isFromOpen ? (
-                  <input type="text" onChange={handleFromCurrencySearch} value={searchFromValue} placeholder="Search..."/>
+                  <input type="text"     onChange={(event) => handleCurrencySearch(event, setSearchFromValue, setSearchCurrencies)} value={searchFromValue} placeholder="Search..." autoFocus/>
                 ) : (
                   <h2>{fromCurrency}</h2>
                 )}
@@ -230,7 +212,7 @@ const handleToCurrencySearch = (event) => {
             <div className="currency">
               <div className="currency-icon-container">
                 {isToOpen ? (
-                  <input type="text" onChange={handleToCurrencySearch} value={searchToValue} placeholder="Search..."/>
+                  <input type="text" onChange={(event) => handleCurrencySearch(event, setSearchToValue, setSearchCurrencies)} value={searchToValue} placeholder="Search..." autoFocus/>
                 ) : (
                   <h2>{toCurrency}</h2>
                 )}
