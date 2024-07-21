@@ -13,6 +13,8 @@ An intuitive and user-friendly Google Chrome extension for real-time currency co
 
 ### Main Screen
 
+![](screenshots/Convrt-Main-Screen.png)
+
 [Back to Top](#convrt-currency-converter)
 
 ## Built With
